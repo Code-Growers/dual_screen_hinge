@@ -1,6 +1,6 @@
 name: dual_screen_hinge
 description: Cross-platform foldable display state, hinge angles, postures, and display modes for Flutter.
-version: 0.1.0
+version: 0.1.1
 homepage: https://code-growers.github.io/dual_screen_hinge/
 repository: https://github.com/Code-Growers/dual_screen_hinge
 issue_tracker: https://github.com/Code-Growers/dual_screen_hinge/issues

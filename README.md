@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/brand/dual_screen_hinge_192.png" width="160" alt="dual_screen_hinge geometric folding-device logo">
-</p>
+![dual_screen_hinge geometric folding-device logo](https://raw.githubusercontent.com/Code-Growers/dual_screen_hinge/main/assets/brand/dual_screen_hinge_192.png)
 
 # dual_screen_hinge
 

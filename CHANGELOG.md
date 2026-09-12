@@ -1,3 +1,7 @@
+## 0.1.1
+
+- Fix the README logo rendering on pub.dev.
+
 ## 0.1.0
 
 - Adds the schema-v1 shared event stream and immutable Dart state model.

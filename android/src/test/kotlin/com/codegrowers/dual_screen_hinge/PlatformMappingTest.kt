@@ -44,12 +44,12 @@ internal class PlatformMappingTest {
         coalescer.offer(20.0)
         coalescer.offer(30.0)
         assertEquals(1, scheduled.size)
-        scheduled.removeFirst().invoke()
+        scheduled.removeAt(0).invoke()
         assertEquals(listOf(30.0), emitted)
 
         coalescer.offer(40.0)
         assertEquals(1, scheduled.size)
-        scheduled.removeFirst().invoke()
+        scheduled.removeAt(0).invoke()
         assertEquals(listOf(30.0, 40.0), emitted)
     }
 

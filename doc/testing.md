@@ -10,8 +10,11 @@ flutter test
 
 Use an Android foldable emulator to exercise folds and Window Area sessions.
 Test a physical book-style fold, flip, and dual-panel device before release.
-With Xcode 27, run the iOS package tests and the iPhone Duo simulator through
-compact, regular, closed, partially-open, fully-open, and tent transitions.
+With Xcode 27, run the iOS hinge tests. With Xcode 27.1 and Device Hub, exercise
+outer and inner displays; compact and regular layouts; closed, partially-open,
+and fully-open transitions; both orientations; Split View; resizing; and inner
+camera activation.
 
-Release remains blocked until angle direction/endpoints, session cancellation,
+Release remains blocked until angle direction/endpoints, reserved-region
+geometry and activity, conservative screen roles, session cancellation,
 backgrounding, and system-ended cleanup pass on representative physical devices.

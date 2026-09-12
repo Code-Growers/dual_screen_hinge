@@ -6,6 +6,13 @@ void main() {
   testWidgets('dashboard describes both layout APIs', (tester) async {
     await tester.pumpWidget(const HingeExampleApp());
     await tester.pump();
+    expect(find.text('iPhone Duo reserved regions'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Reserved-region diagnostics'),
+      300,
+      scrollable: find.byType(Scrollable),
+    );
+    expect(find.text('Reserved-region diagnostics'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Plugin vs MediaQuery'),
       300,

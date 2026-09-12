@@ -9,4 +9,5 @@ EventChannel sharing, and explicit session lifetime.
 
 Do not ask an agent to infer fold support from device names, reflect into OEM
 classes, use private Apple APIs, or drive layout from a continuous angle. Tests
-should inject the Dart platform interface and native hinge provider.
+should inject the Dart platform interface plus native hinge and reserved-region
+providers.

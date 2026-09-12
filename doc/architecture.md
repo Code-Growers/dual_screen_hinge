@@ -9,10 +9,13 @@ and experimental Window Area capability/session APIs. Sensor registration is
 bound to foreground lifecycle plus Dart listenership. Display sessions are
 bound to the owning Flutter engine rather than stream listeners.
 
-iOS attaches a zero-sized observer view to the Flutter view controller. A
-`HingeProviding` adapter owns `UIHingeInteraction`; size-class changes are used
-for screen role only after the provider confirms hinge hardware. The
-unsupported provider is used on iOS 13–26 and non-foldable hardware.
+iOS attaches a transparent, noninteractive observer view to the Flutter view
+controller. A `HingeProviding` adapter owns `UIHingeInteraction`, while a
+separately guarded `ReservedRegionProviding` adapter reads iOS 27.1 division
+and camera regions. Region and window-scene evidence take precedence over size
+classes for screen role; ambiguous multitasking layouts remain unknown. The
+unsupported providers are used with older SDKs/runtimes and non-foldable
+hardware.
 
 ## Source layout
 

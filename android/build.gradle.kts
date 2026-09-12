@@ -1,5 +1,5 @@
 group = "com.codegrowers.dual_screen_hinge"
-version = "0.1.0"
+version = "0.2.0"
 
 buildscript {
     val kotlinVersion = "2.3.20"

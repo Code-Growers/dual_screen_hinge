@@ -469,6 +469,7 @@ class DualScreenHingePlugin :
             "platformSupported" to (angleSensor.isSupported || layout || rear || dual),
             "hingeAngleSensor" to angleSensor.isSupported,
             "layoutFeatures" to layout,
+            "reservedRegionGeometry" to false,
             "rearDisplay" to rear,
             "dualScreenPresentation" to dual,
         )
@@ -485,6 +486,7 @@ class DualScreenHingePlugin :
             "posture" to resolvedPosture.posture,
             "postureSource" to resolvedPosture.source,
             "displayFeatures" to displayFeatures,
+            "reservedRegions" to emptyList<Map<String, Any>>(),
             "supportedPostures" to supportedPostures,
             "displayModes" to mapOf(
                 "rearDisplay" to rearMode.toMap(),

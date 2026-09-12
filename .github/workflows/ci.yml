@@ -58,6 +58,31 @@ jobs:
           swift package dump-package
         working-directory: ios/dual_screen_hinge
 
+  ios-duo:
+    if: vars.XCODE_271_AVAILABLE == 'true'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '27.1.0'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Build iOS 27.1 reserved-region adapter
+        run: |
+          flutter config --no-enable-swift-package-manager
+          flutter build ios --simulator --no-codesign
+          xcodebuild build-for-testing \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator'
+        working-directory: example
+
   docs:
     runs-on: ubuntu-latest
     defaults:

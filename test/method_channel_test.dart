@@ -22,9 +22,15 @@ void main() {
               return <String, Object?>{
                 'hingeAngle': 45,
                 'posture': 'halfOpened',
+                'reservedRegions': <Object?>[
+                  <Object?, Object?>{'kind': 'division', 'isActive': true},
+                ],
               };
             case 'capabilities':
-              return <String, Object?>{'hingeAngleSensor': true};
+              return <String, Object?>{
+                'hingeAngleSensor': true,
+                'reservedRegionGeometry': true,
+              };
             default:
               return null;
           }
@@ -32,8 +38,12 @@ void main() {
   });
 
   test('snapshots and controls use the documented method contract', () async {
-    expect((await platform.currentState()).hingeAngle, 45);
-    expect((await platform.capabilities()).hingeAngleSensor, isTrue);
+    final state = await platform.currentState();
+    expect(state.hingeAngle, 45);
+    expect(state.reservedRegions.single.kind, ReservedRegionKind.division);
+    final capabilities = await platform.capabilities();
+    expect(capabilities.hingeAngleSensor, isTrue);
+    expect(capabilities.reservedRegionGeometry, isTrue);
     await platform.startDualScreen(
       entrypoint: 'secondaryMain',
       arguments: const <String>['demo'],

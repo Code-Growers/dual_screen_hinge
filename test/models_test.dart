@@ -27,6 +27,28 @@ void main() {
           'nativeState': 'HALF_OPENED',
         },
       ],
+      'reservedRegions': <Object?>[
+        <Object?, Object?>{
+          'bounds': <Object?, Object?>{
+            'left': 410,
+            'top': 0,
+            'right': 414,
+            'bottom': 900,
+          },
+          'kind': 'division',
+          'isActive': true,
+        },
+        <Object?, Object?>{
+          'bounds': <Object?, Object?>{
+            'left': 760,
+            'top': 0,
+            'right': 824,
+            'bottom': 48,
+          },
+          'kind': 'occlusion',
+          'isActive': false,
+        },
+      ],
       'supportedPostures': <Object?>['tabletop'],
       'displayModes': <Object?, Object?>{
         'rearDisplay': <Object?, Object?>{'state': 'available'},
@@ -45,6 +67,17 @@ void main() {
       const Rect.fromLTRB(400, 0, 424.5, 900),
     );
     expect(state.displayFeatures.single.type, FoldFeatureType.hinge);
+    expect(state.reservedRegions, hasLength(2));
+    expect(
+      state.reservedRegions.first,
+      const ReservedRegion(
+        bounds: Rect.fromLTRB(410, 0, 414, 900),
+        kind: ReservedRegionKind.division,
+        isActive: true,
+      ),
+    );
+    expect(state.reservedRegions.last.kind, ReservedRegionKind.occlusion);
+    expect(state.reservedRegions.last.isActive, isFalse);
     expect(state.dualScreen.state, DisplayModeState.active);
     expect(state.dualScreen.isContentVisible, isTrue);
   });
@@ -57,23 +90,47 @@ void main() {
       'displayFeatures': <Object?>[
         <Object?, Object?>{'type': 'crease'},
       ],
+      'reservedRegions': <Object?>[
+        <Object?, Object?>{
+          'bounds': 'not-a-map',
+          'kind': 'futureRegion',
+          'isActive': 'yes',
+        },
+      ],
     });
 
     expect(state.activeScreen, ActiveScreen.unknown);
     expect(state.hingeAngle, isNull);
     expect(state.posture, HingePosture.unknown);
     expect(state.displayFeatures.single.type, FoldFeatureType.unknown);
+    expect(state.reservedRegions.single.kind, ReservedRegionKind.unknown);
+    expect(state.reservedRegions.single.bounds, Rect.zero);
+    expect(state.reservedRegions.single.isActive, isFalse);
   });
 
   test('value equality supports event deduplication', () {
     const first = DualScreenState(
       hingeAngle: 180,
       posture: HingePosture.flat,
+      reservedRegions: <ReservedRegion>[
+        ReservedRegion(
+          bounds: Rect.fromLTRB(200, 0, 204, 600),
+          kind: ReservedRegionKind.division,
+          isActive: true,
+        ),
+      ],
       supportedPostures: <String>['tabletop'],
     );
     const second = DualScreenState(
       hingeAngle: 180,
       posture: HingePosture.flat,
+      reservedRegions: <ReservedRegion>[
+        ReservedRegion(
+          bounds: Rect.fromLTRB(200, 0, 204, 600),
+          kind: ReservedRegionKind.division,
+          isActive: true,
+        ),
+      ],
       supportedPostures: <String>['tabletop'],
     );
 
@@ -88,5 +145,11 @@ void main() {
     expect(capabilities.platformSupported, isFalse);
     expect(capabilities.hingeAngleSensor, isFalse);
     expect(capabilities.layoutFeatures, isFalse);
+    expect(capabilities.reservedRegionGeometry, isFalse);
+  });
+
+  test('missing reserved-region payload remains backwards compatible', () {
+    final state = DualScreenState.fromMap(const <Object?, Object?>{});
+    expect(state.reservedRegions, isEmpty);
   });
 }

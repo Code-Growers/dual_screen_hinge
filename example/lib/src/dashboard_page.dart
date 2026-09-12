@@ -62,6 +62,13 @@ class _DashboardPageState extends State<DashboardPage> {
               angle: state.hingeAngle ?? _fallbackAngle(state.posture),
             ),
             const SizedBox(height: 16),
+            ReservedRegionVisualizer(
+              regions: state.reservedRegions,
+              viewportSize: MediaQuery.sizeOf(context),
+            ),
+            const SizedBox(height: 12),
+            _ReservedRegionCard(regions: state.reservedRegions),
+            const SizedBox(height: 12),
             _StateCard(state: state),
             const SizedBox(height: 12),
             _CapabilitiesCard(capabilities: _capabilities),
@@ -122,6 +129,7 @@ class _StateCard extends StatelessWidget {
         _Chip('screen', state.activeScreen.name),
         _Chip('inner', '${state.isInnerScreen ?? 'unknown'}'),
         _Chip('features', '${state.displayFeatures.length}'),
+        _Chip('regions', '${state.reservedRegions.length}'),
       ],
     ),
   );
@@ -140,6 +148,7 @@ class _CapabilitiesCard extends StatelessWidget {
           {
                 'Hinge angle': capabilities.hingeAngleSensor,
                 'Layout features': capabilities.layoutFeatures,
+                'Reserved regions': capabilities.reservedRegionGeometry,
                 'Rear display': capabilities.rearDisplay,
                 'Dual-screen presentation': capabilities.dualScreenPresentation,
               }.entries
@@ -157,6 +166,35 @@ class _CapabilitiesCard extends StatelessWidget {
               )
               .toList(),
     ),
+  );
+}
+
+class _ReservedRegionCard extends StatelessWidget {
+  const _ReservedRegionCard({required this.regions});
+
+  final List<ReservedRegion> regions;
+
+  @override
+  Widget build(BuildContext context) => _Section(
+    title: 'Reserved-region diagnostics',
+    child: regions.isEmpty
+        ? const Text(
+            'Requires iPhone Duo support compiled with the iOS 27.1 SDK.',
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final region in regions)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    '${region.kind.name} · '
+                    '${region.isActive ? 'active' : 'inactive'} · '
+                    '${region.bounds}',
+                  ),
+                ),
+            ],
+          ),
   );
 }
 

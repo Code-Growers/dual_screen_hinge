@@ -13,6 +13,14 @@ Use `dual_screen_hinge` for:
 - Orientation, occlusion, separation, and native state in one model.
 - Runtime supported-posture capability.
 - Rear-display and dual-screen sessions.
-- iOS hinge and inner/outer screen state.
+- iOS hinge, conservative inner/outer screen state, and iOS 27.1 folding and
+  camera reserved regions.
+
+On iPhone Duo, continue using `MediaQuery.sizeOf(context)`, flexible
+constraints, and each individual edge from `MediaQuery.paddingOf(context)` for
+the overall layout. Use `reservedRegions` only when important custom-positioned
+content needs to avoid a folding or camera region. Active division regions are
+also present in `displayFeatures` so shared Android/iOS layout code can consume
+one model.
 
 The example app places both sources side by side so discrepancies are visible.

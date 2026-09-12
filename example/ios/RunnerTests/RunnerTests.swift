@@ -13,9 +13,11 @@ final class RunnerTests: XCTestCase {
     plugin.handle(call) { result in
       let state = result as? [String: Any]
       XCTAssertEqual(state?["schemaVersion"] as? Int, 1)
-      XCTAssertNotNil(state?["isInnerScreen"] as? Bool)
+      XCTAssertNotNil(state?["isInnerScreen"])
+      XCTAssertNotNil(state?["reservedRegions"] as? [[String: Any]])
       resultExpectation.fulfill()
     }
     waitForExpectations(timeout: 1)
   }
+
 }

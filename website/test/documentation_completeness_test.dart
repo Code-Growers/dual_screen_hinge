@@ -33,4 +33,14 @@ void main() {
     expect(File('web/favicon.png').existsSync(), isTrue);
     expect(File('web/assets/logo.png').existsSync(), isTrue);
   });
+
+  test('iPhone Duo guide covers the reserved-region contract', () {
+    final text = File('content/guides/iphone-duo.md').readAsStringSync();
+    expect(text, contains('Reserved regions'));
+    expect(text, contains('division'));
+    expect(text, contains('occlusion'));
+    expect(text, contains('MediaQuery.paddingOf'));
+    expect(text, contains('Split View'));
+    expect(text, contains('vertical-bar'));
+  });
 }

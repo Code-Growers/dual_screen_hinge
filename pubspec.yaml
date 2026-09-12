@@ -1,16 +1,19 @@
 name: dual_screen_hinge
-description: Cross-platform foldable display state, hinge angles, postures, and display modes for Flutter.
-version: 0.1.1
+description: "iPhone Duo-first foldable support for Flutter: hinge angles, postures, reserved regions, screen roles, and Android display modes."
+version: 0.2.0
 homepage: https://code-growers.github.io/dual_screen_hinge/
 repository: https://github.com/Code-Growers/dual_screen_hinge
 issue_tracker: https://github.com/Code-Growers/dual_screen_hinge/issues
 documentation: https://code-growers.github.io/dual_screen_hinge/
 topics:
+  - iphone-duo
   - foldable
   - dual-screen
   - hinge
   - android
-  - ios
+screenshots:
+  - description: iPhone Duo reserved-region geometry visualized in the Flutter example.
+    path: assets/screenshots/iphone_duo_reserved_regions.png
 
 environment:
   sdk: '>=3.10.0 <4.0.0'

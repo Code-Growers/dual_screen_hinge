@@ -17,5 +17,6 @@ is dynamic. `unsupported` means the required standard API is absent;
 
 ## iPhone Duo reports unsupported
 
-Use an Xcode 27 SDK build, run on iPhone Duo/simulator, and ensure the Flutter
-view is attached. Size class alone never opts a device into hinge support.
+Use an Xcode 27 SDK build for hinge telemetry or Xcode 27.1 for reserved
+regions, run on iPhone Duo/simulator, and ensure the Flutter view is attached.
+Size class alone never opts a device into hinge support.

@@ -17,6 +17,54 @@ enum FoldFeatureOrientation { unknown, horizontal, vertical }
 /// How much content a feature physically hides.
 enum FoldFeatureOcclusion { unknown, none, full }
 
+/// The role a system-reserved area plays in the current layout.
+enum ReservedRegionKind { unknown, division, occlusion }
+
+@immutable
+/// Geometry that custom content should avoid on the current display.
+final class ReservedRegion {
+  /// Creates immutable reserved-region metadata.
+  const ReservedRegion({
+    required this.bounds,
+    this.kind = ReservedRegionKind.unknown,
+    this.isActive = false,
+  });
+
+  /// Defensively decodes a StandardMessageCodec dictionary.
+  factory ReservedRegion.fromMap(Map<Object?, Object?> map) {
+    final bounds = _map(map['bounds']);
+    return ReservedRegion(
+      bounds: Rect.fromLTRB(
+        _double(bounds['left']) ?? 0,
+        _double(bounds['top']) ?? 0,
+        _double(bounds['right']) ?? 0,
+        _double(bounds['bottom']) ?? 0,
+      ),
+      kind: _enumByName(ReservedRegionKind.values, map['kind']),
+      isActive: map['isActive'] == true,
+    );
+  }
+
+  /// Region bounds in Flutter logical pixels, relative to the Flutter view.
+  final Rect bounds;
+
+  /// Whether the region divides content or physically occludes it.
+  final ReservedRegionKind kind;
+
+  /// Whether the system currently applies this region to layout.
+  final bool isActive;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ReservedRegion &&
+      other.bounds == bounds &&
+      other.kind == kind &&
+      other.isActive == isActive;
+
+  @override
+  int get hashCode => Object.hash(bounds, kind, isActive);
+}
+
 /// The lifecycle and availability of a controllable display mode.
 enum DisplayModeState {
   unsupported,
@@ -150,6 +198,7 @@ final class DualScreenState {
     this.posture = HingePosture.unknown,
     this.postureSource = 'unavailable',
     this.displayFeatures = const <FoldFeature>[],
+    this.reservedRegions = const <ReservedRegion>[],
     this.supportedPostures = const <String>[],
     this.rearDisplay = const DisplayMode(),
     this.dualScreen = const DisplayMode(),
@@ -170,6 +219,10 @@ final class DualScreenState {
       displayFeatures: _list(map['displayFeatures'])
           .whereType<Map>()
           .map((value) => FoldFeature.fromMap(_map(value)))
+          .toList(growable: false),
+      reservedRegions: _list(map['reservedRegions'])
+          .whereType<Map>()
+          .map((value) => ReservedRegion.fromMap(_map(value)))
           .toList(growable: false),
       supportedPostures: _list(
         map['supportedPostures'],
@@ -200,6 +253,9 @@ final class DualScreenState {
   /// Current physical folds and hinges in logical pixels.
   final List<FoldFeature> displayFeatures;
 
+  /// Active and inactive system-reserved areas in logical pixels.
+  final List<ReservedRegion> reservedRegions;
+
   /// Postures the native layout library reports as supported.
   final List<String> supportedPostures;
 
@@ -219,6 +275,7 @@ final class DualScreenState {
       other.posture == posture &&
       other.postureSource == postureSource &&
       listEquals(other.displayFeatures, displayFeatures) &&
+      listEquals(other.reservedRegions, reservedRegions) &&
       listEquals(other.supportedPostures, supportedPostures) &&
       other.rearDisplay == rearDisplay &&
       other.dualScreen == dualScreen;
@@ -232,6 +289,7 @@ final class DualScreenState {
     posture,
     postureSource,
     Object.hashAll(displayFeatures),
+    Object.hashAll(reservedRegions),
     Object.hashAll(supportedPostures),
     rearDisplay,
     dualScreen,
@@ -246,6 +304,7 @@ final class DualScreenCapabilities {
     this.platformSupported = false,
     this.hingeAngleSensor = false,
     this.layoutFeatures = false,
+    this.reservedRegionGeometry = false,
     this.rearDisplay = false,
     this.dualScreenPresentation = false,
   });
@@ -256,6 +315,7 @@ final class DualScreenCapabilities {
         platformSupported: map['platformSupported'] == true,
         hingeAngleSensor: map['hingeAngleSensor'] == true,
         layoutFeatures: map['layoutFeatures'] == true,
+        reservedRegionGeometry: map['reservedRegionGeometry'] == true,
         rearDisplay: map['rearDisplay'] == true,
         dualScreenPresentation: map['dualScreenPresentation'] == true,
       );
@@ -269,6 +329,9 @@ final class DualScreenCapabilities {
   /// Whether physical layout features are available.
   final bool layoutFeatures;
 
+  /// Whether native reserved-region geometry is available.
+  final bool reservedRegionGeometry;
+
   /// Whether rear-display activity transfer is supported.
   final bool rearDisplay;
 
@@ -281,6 +344,7 @@ final class DualScreenCapabilities {
       other.platformSupported == platformSupported &&
       other.hingeAngleSensor == hingeAngleSensor &&
       other.layoutFeatures == layoutFeatures &&
+      other.reservedRegionGeometry == reservedRegionGeometry &&
       other.rearDisplay == rearDisplay &&
       other.dualScreenPresentation == dualScreenPresentation;
 
@@ -289,6 +353,7 @@ final class DualScreenCapabilities {
     platformSupported,
     hingeAngleSensor,
     layoutFeatures,
+    reservedRegionGeometry,
     rearDisplay,
     dualScreenPresentation,
   );

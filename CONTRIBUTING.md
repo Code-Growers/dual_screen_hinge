@@ -1,6 +1,6 @@
 # Contributing
 
-Use Flutter 3.38 or newer, JDK 17, Android SDK 36, and Xcode 27 for the full
+Use Flutter 3.38 or newer, JDK 17, Android SDK 36, and Xcode 27.1 for the full
 iOS suite. Fork the repository, create a focused branch, and include tests for
 behavior changes.
 

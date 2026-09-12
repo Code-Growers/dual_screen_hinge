@@ -1,16 +1,17 @@
 ---
-title: Foldable APIs for Flutter
-description: Continuous hinge angles, posture, feature geometry, and display modes on Android and iPhone Duo.
+title: iPhone Duo APIs for Flutter
+description: iPhone Duo-first hinge telemetry and reserved-region geometry, with cross-platform foldable support.
 image: assets/logo.png
 imageAlt: Abstract teal two-panel folding-device logo
 ---
 
-`dual_screen_hinge` complements Flutter's adaptive layout APIs with continuous
-fold telemetry and native display-mode controls.
+`dual_screen_hinge` exposes iPhone Duo hinge telemetry, folding and camera
+reserved regions, plus cross-platform foldable APIs.
 
 <Info>
-Use `MediaQuery.displayFeatures` for adaptive Android layout. Use this plugin
-for animation angles, richer metadata, display modes, and iOS support.
+Use Flutter's responsive layout APIs first. Use this plugin for iPhone Duo
+reserved regions and animation angles, richer fold metadata, and Android
+display modes.
 </Info>
 
 <HingeSimulator/>
@@ -29,7 +30,8 @@ unchanged payloads, and coalesces high-frequency angles to the display cadence.
 ## Designed for capability differences
 
 - Android fold, flip, trifold, and dual-panel devices use standard Android APIs.
-- iPhone Duo uses `UIHingeInteraction` and size classes with runtime checks.
+- iPhone Duo uses `UIHingeInteraction`, reserved regions, and scene-aware
+  runtime checks.
 - Unknown data stays nullable; future native enum values decode safely.
 - No device allowlists, OEM reflection, or private APIs.
 

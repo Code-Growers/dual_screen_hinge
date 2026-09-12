@@ -1,6 +1,6 @@
 title: dual_screen_hinge
 titleBase: dual_screen_hinge
-description: Continuous hinge angles and foldable display APIs for Flutter on Android and iOS.
+description: iPhone Duo-first hinge telemetry and reserved-region APIs for Flutter, with Android foldable support.
 lang: en
 base: /dual_screen_hinge/
 favicon: favicon.png

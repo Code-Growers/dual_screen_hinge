@@ -7,12 +7,14 @@ capabilities, and Android display-mode sessions:
 flutter run
 ```
 
-The dashboard includes an angle-driven fold animation and shows
+The dashboard includes an angle-driven fold animation, a reserved-region
+overlay with activity and bounds diagnostics, and
 `MediaQuery.displayFeatures` beside the richer plugin state. Rear-display and
 dual-screen buttons enable themselves only when the native capability is
 available.
 
 The secondary Android display starts the annotated
 `dualScreenSecondaryMain(List<String>)` entrypoint in `lib/main.dart`. iPhone
-Duo telemetry requires an Xcode 27 build and supported hardware; ordinary iOS
+Duo hinge telemetry requires Xcode 27, reserved regions require Xcode 27.1,
+and both require supported hardware; ordinary iOS
 devices return the safe unsupported snapshot.

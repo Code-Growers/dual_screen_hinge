@@ -11,7 +11,7 @@ capabilities and is not an allowlist.
 | Surface Duo family | Expected | Device/OS dependent | — | Device dependent | Hardware needed |
 | Android foldable emulator | Expected | Emulator dependent | Emulator dependent | Emulator dependent | Manual gate |
 | Ordinary iPhone/iPad, iOS 13–27 | Safe unsupported state | — | — | — | Simulator |
-| iPhone Duo, iOS 27 | Expected | Expected | — | — | Release hardware gate |
+| iPhone Duo, iOS 27.1 | Expected, including reserved regions | Expected | — | — | Release hardware gate |
 
 Submit a matrix report with OS build, Flutter version, returned capabilities,
 and sanitized event payloads. Do not include serial numbers or account data.

@@ -1,0 +1,10 @@
+dual_screen_hinge uses the following third-party libraries at build/runtime:
+
+- Flutter, Copyright The Flutter Authors, BSD 3-Clause License.
+- AndroidX WindowManager, Copyright The Android Open Source Project,
+  Apache License 2.0.
+- Kotlin coroutines, Copyright JetBrains s.r.o. and contributors,
+  Apache License 2.0.
+
+This project takes API-design inspiration, but no source code, from Microsoft's
+dual_screen Flutter package (BSD 3-Clause License).

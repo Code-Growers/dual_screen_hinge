@@ -1,0 +1,25 @@
+name: Device capability report
+description: Share sanitized foldable API observations.
+title: '[device] '
+labels: [device-matrix]
+body:
+  - type: input
+    id: device
+    attributes:
+      label: Device family
+      placeholder: Pixel Fold
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and build
+    validations:
+      required: true
+  - type: textarea
+    id: capabilities
+    attributes:
+      label: Capabilities and sanitized events
+      description: Do not include serial numbers, account data, or proprietary SDK material.
+    validations:
+      required: true

@@ -1,0 +1,28 @@
+PODS:
+  - dual_screen_hinge (0.1.0):
+    - Flutter
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - dual_screen_hinge (from `.symlinks/plugins/dual_screen_hinge/ios`)
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+EXTERNAL SOURCES:
+  dual_screen_hinge:
+    :path: ".symlinks/plugins/dual_screen_hinge/ios"
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+SPEC CHECKSUMS:
+  dual_screen_hinge: 189bce4a43466626720ca46df5422871603f29fb
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+
+PODFILE CHECKSUM: 35a2496d953b78d5fb37339ae9ffb08c120bebdc
+
+COCOAPODS: 1.17.0

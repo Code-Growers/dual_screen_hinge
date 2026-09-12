@@ -1,0 +1,19 @@
+# dual_screen_hinge
+
+Cross-platform Flutter plugin for continuous foldable hinge angles, posture,
+feature geometry, active screen role, and Android display modes.
+
+Canonical API:
+- DualScreenHinge.instance.events
+- DualScreenHinge.instance.hingeAngleEvents
+- currentState(), capabilities()
+- startRearDisplay(), stopRearDisplay()
+- startDualScreen(entrypoint, arguments), stopDualScreen()
+
+Use MediaQuery.displayFeatures for adaptive Android layout. Use this plugin for
+raw angles, richer metadata, display sessions, and iOS. Unknown native enum
+values map to unknown. Android screen identity is nullable/unknown unless a
+Window Area session proves it. No model allowlists or private APIs.
+
+Source: https://github.com/Code-Growers/dual_screen_hinge
+Docs: https://code-growers.github.io/dual_screen_hinge/

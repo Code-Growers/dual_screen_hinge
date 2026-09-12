@@ -1,0 +1,12 @@
+.dart_tool/
+.github/
+.idea/
+.vscode/
+build/
+doc/api/
+website/
+**/build/
+**/.gradle/
+**/Pods/
+**/.symlinks/
+*.iml

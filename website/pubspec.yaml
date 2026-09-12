@@ -1,0 +1,23 @@
+name: dual_screen_hinge_website
+description: Documentation for dual_screen_hinge.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  jaspr: 0.23.4
+  jaspr_content: 0.5.4
+
+dev_dependencies:
+  build_runner: ^2.7.0
+  build_web_compilers: 4.8.0
+  jaspr_builder: 0.23.4
+  jaspr_lints: ^0.7.1
+  jaspr_test: 0.23.4
+  lints: ^6.1.0
+  test: ^1.25.8
+
+jaspr:
+  mode: static

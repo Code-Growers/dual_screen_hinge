@@ -1,0 +1,9 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - build/**
+
+plugins:
+  jaspr_lints:
+    version: ^0.7.1

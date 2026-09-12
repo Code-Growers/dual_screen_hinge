@@ -21,7 +21,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: 3.12.2
@@ -30,7 +30,7 @@ jobs:
       - run: dart pub global activate jaspr_cli 0.23.4
       - run: jaspr build
         working-directory: website
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: website/build/jaspr
 
@@ -41,6 +41,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Check GitHub Pages availability
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/pages" >/dev/null 2>&1; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Configure GitHub Pages
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/configure-pages@v5
       - name: Deploy to GitHub Pages
+        if: steps.pages.outputs.enabled == 'true'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+      - name: Explain Pages setup
+        if: steps.pages.outputs.enabled != 'true'
+        run: |
+          echo "GitHub Pages is not enabled for ${GITHUB_REPOSITORY}; deployment skipped."
+          echo "Enable Settings > Pages > Source: GitHub Actions, then rerun this workflow." >> "$GITHUB_STEP_SUMMARY"

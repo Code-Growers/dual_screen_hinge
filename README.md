@@ -95,7 +95,8 @@ is nullable or reported through runtime capabilities.
 
 See the [documentation site](https://code-growers.github.io/dual_screen_hinge/),
 the complete [wire contract](doc/wire-contract.md), [device matrix](doc/device-matrix.md),
-and [testing guide](doc/testing.md). The [`example/`](example/) app includes a
+the [deployment guide](doc/deployment.md), and [testing guide](doc/testing.md).
+The [`example/`](example/) app includes a
 live fold animation and compares plugin output with `MediaQuery.displayFeatures`.
 
 ## License

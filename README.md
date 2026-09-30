@@ -19,13 +19,15 @@ supported postures, rear/dual-screen display sessions, or iOS support.
 
 ```yaml
 dependencies:
-  dual_screen_hinge: ^0.2.0
+  dual_screen_hinge: ^0.2.1
 ```
 
 Requires Flutter 3.38+, Dart 3.10+, Android API 21+, or iOS 13+. iPhone Duo
-hinge telemetry requires Xcode 27. Reserved-region geometry and full Duo
-validation require Xcode 27.1. Older Xcode and iOS versions keep a safe,
-unsupported fallback.
+hinge telemetry requires a UIKit SDK that declares `UIHingeInteraction`.
+Reserved-region geometry requires an SDK that declares `reservedRegions`.
+CocoaPods and Swift Package Manager detect these APIs automatically; Xcode 27.0
+SDKs without them keep the safe, unsupported fallback. No Podfile workaround
+is needed. Runtime support still depends on the iOS version and hardware.
 
 ## Read state and animate
 

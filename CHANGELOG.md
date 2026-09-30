@@ -1,3 +1,9 @@
+## 0.2.1
+
+- Fix iOS builds with Xcode 27.0 SDKs that do not declare `UIHingeInteraction`.
+- Detect hinge and reserved-region APIs in public UIKit headers and Swift interfaces for CocoaPods and Swift Package Manager instead of relying on toolchain version numbers.
+- Check device and simulator SDKs independently in CocoaPods and keep the unsupported fallback when APIs are absent. Existing Podfile workarounds can be removed.
+
 ## 0.2.0
 
 - Adds iOS 27.1 folding and camera reserved-region geometry with active-state metadata.

@@ -3,57 +3,64 @@
 import PackageDescription
 import Foundation
 
-var dualScreenSwiftSettings: [SwiftSetting] = []
+// Detect public API declarations rather than inferring them from the Xcode or
+// Swift version. SDKs with no declarations must compile the safe fallback.
+func selectedSDKPath() -> String? {
+    let sdkRoot = ProcessInfo.processInfo.environment["SDKROOT"] ?? ""
+    if sdkRoot.hasPrefix("/") { return sdkRoot }
 
-// Xcode 27 ships Swift 6.4. Keep Apple API references out of source parsing on
-// older toolchains so the package retains its unsupported runtime fallback.
-#if compiler(>=6.4)
-dualScreenSwiftSettings.append(.define("DUAL_SCREEN_HINGE_IOS27"))
-
-let buildEnvironment = ProcessInfo.processInfo.environment
-let buildXcodeVersion = Int(buildEnvironment["XCODE_VERSION_ACTUAL"] ?? "") ?? 0
-let sdkRoot = buildEnvironment["SDKROOT"] ?? ""
-
-func selectedXcodeVersion() -> String {
     let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/xcodebuild")
-    process.arguments = ["-version"]
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
+    process.arguments = ["--sdk", sdkRoot.isEmpty ? "iphoneos" : sdkRoot, "--show-sdk-path"]
     let output = Pipe()
     process.standardOutput = output
-    process.standardError = Pipe()
+    process.standardError = FileHandle.nullDevice
     do {
         try process.run()
+        let data = output.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
-        guard process.terminationStatus == 0 else { return "" }
-        return String(
-            data: output.fileHandleForReading.readDataToEndOfFile(),
-            encoding: .utf8
-        ) ?? ""
+        guard process.terminationStatus == 0 else { return nil }
+        return String(data: data, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     } catch {
-        return ""
+        return nil
     }
 }
 
-let selectedXcode = selectedXcodeVersion()
-let selectedVersion = selectedXcode
-    .split(separator: "\n")
-    .first?
-    .split(separator: " ")
-    .last?
-    .split(separator: ".")
-    .compactMap { Int($0) } ?? []
-let selectedXcodeSupports271 = selectedVersion.first.map { major in
-    major > 27 || (major == 27 && selectedVersion.dropFirst().first ?? 0 >= 1)
-} ?? false
-let enablesIOS271 = buildXcodeVersion >= 2710
-    || sdkRoot.contains("iPhoneOS27.1.sdk")
-    || sdkRoot.contains("iPhoneSimulator27.1.sdk")
-    || selectedXcodeSupports271
-    || buildEnvironment["DUAL_SCREEN_HINGE_ENABLE_IOS271"] == "1"
-if enablesIOS271 {
+func uiKitDeclarations() -> String {
+    guard let sdkPath = selectedSDKPath() else { return "" }
+    let framework = URL(fileURLWithPath: sdkPath)
+        .appendingPathComponent("System/Library/Frameworks/UIKit.framework")
+    var declarations: [String] = []
+    for directory in ["Headers", "Modules"] {
+        guard let files = FileManager.default.enumerator(
+            at: framework.appendingPathComponent(directory),
+            includingPropertiesForKeys: nil
+        ) else { continue }
+        for case let file as URL in files {
+            guard ["h", "swiftinterface"].contains(file.pathExtension),
+                  let contents = try? String(contentsOf: file, encoding: .utf8)
+            else { continue }
+            declarations.append(contents)
+        }
+    }
+    return declarations.joined(separator: "\n")
+}
+
+let declarations = uiKitDeclarations()
+var dualScreenSwiftSettings: [SwiftSetting] = []
+if declarations.range(
+    of: #"(?:@interface|\bclass)\s+UIHingeInteraction\b"#,
+    options: .regularExpression
+) != nil {
+    dualScreenSwiftSettings.append(.define("DUAL_SCREEN_HINGE_IOS27"))
+}
+if declarations.range(
+    of: #"\bfunc\s+reservedRegions\s*\(|\breservedRegions(?:With\w*)?\s*:"#,
+    options: .regularExpression
+) != nil {
     dualScreenSwiftSettings.append(.define("DUAL_SCREEN_HINGE_IOS271"))
 }
-#endif
 
 let package = Package(
     name: "dual_screen_hinge",

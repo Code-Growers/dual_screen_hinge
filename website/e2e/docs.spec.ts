@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('docs load with responsive navigation and interactive simulator', async ({ page }) => {
   await page.goto('');
-  await expect(page.getByRole('heading', { name: 'Foldable APIs for Flutter' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'iPhone Duo APIs for Flutter', level: 1, exact: true })).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeVisible();
 
   const slider = page.getByRole('slider');

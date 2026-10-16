@@ -69,6 +69,28 @@ final class DualScreenHingeTests: XCTestCase {
     XCTAssertEqual(events.count, countAfterCancel)
   }
 
+  @MainActor
+  func testPostureSourceWaitsForFirstHingeSample() {
+    let provider = MockHingeProvider()
+    let controller = UIViewController()
+    controller.loadViewIfNeeded()
+    let handler = DualScreenStreamHandler(viewController: controller, provider: provider)
+    var events: [[String: Any]] = []
+
+    XCTAssertNil(handler.onListen(withArguments: nil) { value in
+      if let event = value as? [String: Any] { events.append(event) }
+    })
+    XCTAssertTrue(provider.isSupported)
+    XCTAssertEqual(events.last?["postureSource"] as? String, "unavailable")
+    XCTAssertEqual(events.last?["hingeAngle"] as? NSNull, NSNull())
+
+    provider.send(angle: 128, status: "partiallyOpen")
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+    XCTAssertEqual(events.last?["postureSource"] as? String, "platform")
+    XCTAssertEqual(events.last?["posture"] as? String, "halfOpened")
+    XCTAssertNil(handler.onCancel(withArguments: nil))
+  }
+
   // UIScene apps register plugins before the Flutter view controller exists.
   @MainActor
   func testAttachesWhenViewControllerAppearsAfterListen() {
@@ -207,10 +229,14 @@ final class DualScreenHingeTests: XCTestCase {
     XCTAssertNil(handler.onListen(withArguments: nil) { value in
       if let event = value as? [String: Any] { events.append(event) }
     })
-    hingeProvider.send(angle: nil, status: "unknown")
+    hingeProvider.send(angle: 90, status: "partiallyOpen")
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+    let countAfterFirstSample = events.count
+
+    hingeProvider.send(angle: 90, status: "partiallyOpen")
     RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
 
-    XCTAssertEqual(events.count, 1)
+    XCTAssertEqual(events.count, countAfterFirstSample)
     XCTAssertNil(handler.onCancel(withArguments: nil))
   }
   #endif

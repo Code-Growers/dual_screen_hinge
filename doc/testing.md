@@ -14,12 +14,16 @@ Manager build, with the Flutter framework on the search path:
 
 ```sh
 (cd example && flutter config --enable-swift-package-manager && flutter build ios --simulator --debug --no-codesign)
+FLUTTER_SIM="$(dirname "$(which flutter)")/cache/artifacts/engine/ios/Flutter.xcframework/ios-arm64_x86_64-simulator"
 (cd example/ios && xcodebuild test -workspace Runner.xcworkspace \
   -scheme dual_screen_hingeTests -destination 'platform=iOS Simulator,name=iPhone Duo' \
-  FRAMEWORK_SEARCH_PATHS="$(dirname "$(which flutter)")/cache/artifacts/engine/ios/Flutter.xcframework/ios-arm64_x86_64-simulator")
+  FRAMEWORK_SEARCH_PATHS="$FLUTTER_SIM" LD_RUNPATH_SEARCH_PATHS="\$(inherited) $FLUTTER_SIM")
 ```
 
-`RunnerTests` run with `-scheme Runner`. The example's end-to-end test drives
+`RunnerTests` run with `-scheme Runner`. `xcodebuild test` boots its own
+simulator instance in the closed pose, so pose-dependent checks belong in the
+end-to-end test driven through Device Hub. The iOS 27.1 simulator has no front
+camera; the inner-camera check skips there and runs on hardware. The example's end-to-end test drives
 the dashboard against the live native stream; on an iPhone Duo, require the
 iOS 27.1 checks instead of skipping them:
 

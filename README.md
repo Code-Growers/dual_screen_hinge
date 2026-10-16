@@ -19,7 +19,7 @@ supported postures, rear/dual-screen display sessions, or iOS support.
 
 ```yaml
 dependencies:
-  dual_screen_hinge: ^1.0.0
+  dual_screen_hinge: ^1.0.1
 ```
 
 Requires Flutter 3.38+, Dart 3.10+, Android API 21+, or iOS 13+. iPhone Duo

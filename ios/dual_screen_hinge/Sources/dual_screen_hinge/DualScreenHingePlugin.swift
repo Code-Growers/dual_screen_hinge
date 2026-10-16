@@ -130,16 +130,16 @@ final class IOS27HingeProvider: HingeProviding {
     let interaction = UIHingeInteraction { [weak self] _, context in
       guard let self else { return }
       guard let hinge = context.hinge else {
-        self.isSupported = false
         DispatchQueue.main.async {
+          self.isSupported = false
           onChange(HingeSample(angle: nil, status: "unknown", hasHinge: false))
         }
         return
       }
-      self.isSupported = true
       let status = Self.statusName(hinge.status)
       let degrees = hingeDegrees(fromRadians: Double(hinge.angle))
       DispatchQueue.main.async {
+        self.isSupported = true
         onChange(HingeSample(
           angle: degrees,
           status: status,
@@ -177,34 +177,17 @@ final class IOS271ReservedRegionProvider: ReservedRegionProviding {
   var isSupported: Bool { true }
 
   func regions(in view: UIView) -> [ReservedRegionSample] {
-    divisionRegions(in: view) + occlusionRegions(in: view)
+    samples(in: view, kind: .division, name: "division")
+      + samples(in: view, kind: .occlusion, name: "occlusion")
   }
 
-  private func divisionRegions(in view: UIView) -> [ReservedRegionSample] {
-    let activeFrames = view.reservedRegions(kind: .division).map(\.frame)
-    return view.reservedRegions(
-      kind: .division,
-      options: .includeInactive
-    ).map { region in
-      ReservedRegionSample(
-        bounds: region.frame,
-        kind: "division",
-        isActive: activeFrames.contains(region.frame)
-      )
-    }
-  }
-
-  private func occlusionRegions(in view: UIView) -> [ReservedRegionSample] {
-    let activeFrames = view.reservedRegions(kind: .occlusion).map(\.frame)
-    return view.reservedRegions(
-      kind: .occlusion,
-      options: .includeInactive
-    ).map { region in
-      ReservedRegionSample(
-        bounds: region.frame,
-        kind: "occlusion",
-        isActive: activeFrames.contains(region.frame)
-      )
+  private func samples(
+    in view: UIView,
+    kind: UIView.ReservedRegion.Kind,
+    name: String
+  ) -> [ReservedRegionSample] {
+    view.reservedRegions(kind: kind, options: .includeInactive).map { region in
+      ReservedRegionSample(bounds: region.frame, kind: name, isActive: region.isActive)
     }
   }
 }
@@ -426,7 +409,9 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   private func buildState() -> [String: Any] {
-    let hasHinge = sample.hasHinge || provider.isSupported
+    // Only a delivered sample proves platform posture data; the provider can
+    // report support a frame before its sample reaches the display link.
+    let hasHinge = sample.hasHinge
     let regions = reservedRegions()
     let role = screenRole(hasHinge: hasHinge, regions: regions)
     let mappedPosture = mapNativeHingePosture(sample.status)

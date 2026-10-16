@@ -1,5 +1,5 @@
 PODS:
-  - dual_screen_hinge (1.0.0):
+  - dual_screen_hinge (1.0.1):
     - Flutter
   - Flutter (1.0.0)
   - integration_test (0.0.1):
@@ -19,7 +19,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  dual_screen_hinge: 23ae96ba78cbbc529a3acb50491551d6ebf1d32a
+  dual_screen_hinge: b701db439af45ca9b53ea078868df7396181f84c
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
 

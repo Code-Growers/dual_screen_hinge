@@ -1,6 +1,6 @@
 name: dual_screen_hinge
 description: "iPhone Duo-first foldable support for Flutter: hinge angles, postures, reserved regions, screen roles, and Android display modes."
-version: 1.0.0
+version: 1.0.1
 homepage: https://code-growers.github.io/dual_screen_hinge/
 repository: https://github.com/Code-Growers/dual_screen_hinge
 issue_tracker: https://github.com/Code-Growers/dual_screen_hinge/issues

@@ -1,3 +1,10 @@
+## 1.0.1
+
+- Fix a race where iOS could report `postureSource: platform` with no hinge angle before UIKit's first hinge sample was delivered; state now derives from delivered samples only.
+- Read reserved-region activity from `UIView.ReservedRegion.isActive` instead of matching frames between two queries.
+- Validated on the Xcode 27.1 iPhone Duo simulator through Device Hub: closed, partially open, and open poses in all four orientations, with the end-to-end test checking posture, angle, screen identity, reserved regions, and display features.
+- Add native coverage for conservative screen identity in partial (Split View or resized) windows, and an inner-camera end-to-end check that runs on hardware with a front camera.
+
 ## 1.0.0
 
 - Fix iOS event streaming in UIScene apps (`FlutterImplicitEngineDelegate`): the plugin now resolves the Flutter view controller when it is available instead of capturing `nil` at registration, so hinge, reserved-region, and screen-role state reach Dart.

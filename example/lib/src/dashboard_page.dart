@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:dual_screen_hinge/dual_screen_hinge.dart';
@@ -15,11 +16,25 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   DualScreenCapabilities _capabilities = const DualScreenCapabilities();
   String? _message;
+  String? _postureSource;
+  StreamSubscription<DualScreenState>? _sourceSubscription;
 
   @override
   void initState() {
     super.initState();
     _refreshCapabilities();
+    // iOS confirms hinge support after the first hinge update arrives.
+    _sourceSubscription = DualScreenHinge.instance.events.listen((state) {
+      if (state.postureSource == _postureSource) return;
+      _postureSource = state.postureSource;
+      _refreshCapabilities();
+    });
+  }
+
+  @override
+  void dispose() {
+    _sourceSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _refreshCapabilities() async {
@@ -67,7 +82,10 @@ class _DashboardPageState extends State<DashboardPage> {
               viewportSize: MediaQuery.sizeOf(context),
             ),
             const SizedBox(height: 12),
-            _ReservedRegionCard(regions: state.reservedRegions),
+            _ReservedRegionCard(
+              regions: state.reservedRegions,
+              supported: _capabilities.reservedRegionGeometry,
+            ),
             const SizedBox(height: 12),
             _StateCard(state: state),
             const SizedBox(height: 12),
@@ -170,16 +188,19 @@ class _CapabilitiesCard extends StatelessWidget {
 }
 
 class _ReservedRegionCard extends StatelessWidget {
-  const _ReservedRegionCard({required this.regions});
+  const _ReservedRegionCard({required this.regions, required this.supported});
 
   final List<ReservedRegion> regions;
+  final bool supported;
 
   @override
   Widget build(BuildContext context) => _Section(
     title: 'Reserved-region diagnostics',
     child: regions.isEmpty
-        ? const Text(
-            'Requires iPhone Duo support compiled with the iOS 27.1 SDK.',
+        ? Text(
+            supported
+                ? 'No reserved regions on this display.'
+                : 'Requires iOS 27.1 and an SDK that declares reservedRegions.',
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,

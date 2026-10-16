@@ -2,6 +2,8 @@
 
 - Fix iOS event streaming in UIScene apps (`FlutterImplicitEngineDelegate`): the plugin now resolves the Flutter view controller when it is available instead of capturing `nil` at registration, so hinge, reserved-region, and screen-role state reach Dart.
 - Fix iOS builds with Xcode 27.1, where `UIHingeInteraction` and `UIHinge` require iOS 27.1.
+- Document that iOS confirms hinge capability after the first hinge update; the example re-reads capabilities when the posture source changes.
+- Add an iPhone Duo end-to-end test for the example app's live hinge, reserved-region, display-feature, and screen-identity state.
 - Report iOS hinge angles in degrees (UIKit reports radians) and map `UIHinge.Status` values explicitly.
 - Apply the detected UIKit API defines to the Swift package test target.
 - Build and test with Flutter 3.47.6 and Dart 3.13.5; the example app targets iOS 15, the minimum Xcode 27.1 accepts. The plugin still supports iOS 13.

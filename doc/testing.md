@@ -19,7 +19,14 @@ Manager build, with the Flutter framework on the search path:
   FRAMEWORK_SEARCH_PATHS="$(dirname "$(which flutter)")/cache/artifacts/engine/ios/Flutter.xcframework/ios-arm64_x86_64-simulator")
 ```
 
-`RunnerTests` run with `-scheme Runner`. Xcode 27.1 requires a deployment
+`RunnerTests` run with `-scheme Runner`. The example's end-to-end test drives
+the dashboard against the live native stream; on an iPhone Duo, require the
+iOS 27.1 checks instead of skipping them:
+
+```sh
+(cd example && flutter test integration_test -d "iPhone Duo" --dart-define=EXPECT_IPHONE_DUO=true)
+```
+ Xcode 27.1 requires a deployment
 target of iOS 15 or later for apps; the plugin itself still compiles for iOS 13.
 
 Use an Android foldable emulator to exercise folds and Window Area sessions.

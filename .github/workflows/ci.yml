@@ -84,6 +84,11 @@ jobs:
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator'
         working-directory: example
+      - name: iPhone Duo end-to-end
+        run: |
+          xcrun simctl boot "iPhone Duo" || true
+          flutter test integration_test -d "iPhone Duo" --dart-define=EXPECT_IPHONE_DUO=true
+        working-directory: example
 
   docs:
     runs-on: ubuntu-latest

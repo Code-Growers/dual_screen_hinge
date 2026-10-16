@@ -23,6 +23,10 @@ final class DualScreenHinge {
   Future<DualScreenState> currentState() => _platform.currentState();
 
   /// Reads current runtime capabilities.
+  ///
+  /// On iOS, hinge support is confirmed only after UIKit delivers the first
+  /// hinge update to an active [events] listener. Read capabilities again when
+  /// [DualScreenState.postureSource] changes.
   Future<DualScreenCapabilities> capabilities() => _platform.capabilities();
 
   /// Requests Android rear-display activity transfer.

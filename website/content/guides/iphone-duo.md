@@ -9,7 +9,8 @@ availability checks and unsupported providers.
 
 `UIHingeInteraction` supplies continuous angle and status. Apple reports
 closed, partially open, and fully open, which map to `closed`, `halfOpened`,
-and `flat`. Hinge angle is intended for effects and interactions, not for
+and `flat`. UIKit reports the angle in radians; the plugin converts it to
+degrees so `hingeAngle` matches Android. Hinge angle is intended for effects and interactions, not for
 placing content around the fold.
 
 ## Reserved regions

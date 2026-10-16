@@ -10,6 +10,27 @@ final class DualScreenHingeTests: XCTestCase {
     XCTAssertEqual(mapNativeHingePosture("futureStatus"), "unknown")
   }
 
+  func testHingeAngleIsConvertedFromRadians() {
+    XCTAssertEqual(hingeDegrees(fromRadians: 0), 0)
+    XCTAssertEqual(hingeDegrees(fromRadians: .pi / 2), 90, accuracy: 1e-9)
+    XCTAssertEqual(hingeDegrees(fromRadians: .pi), 180, accuracy: 1e-9)
+  }
+
+  #if DUAL_SCREEN_HINGE_IOS27
+  func testUIKitHingeStatusNamesMapToPostures() throws {
+    guard #available(iOS 27.1, *) else { throw XCTSkip("Requires iOS 27.1") }
+    let cases: [(UIHinge.Status, String)] = [
+      (.closed, "closed"),
+      (.partiallyOpen, "halfOpened"),
+      (.fullyOpen, "flat"),
+      (.unknown, "unknown"),
+    ]
+    for (status, posture) in cases {
+      XCTAssertEqual(mapNativeHingePosture(IOS27HingeProvider.statusName(status)), posture)
+    }
+  }
+  #endif
+
   func testUnsupportedProviderIsSafe() {
     let provider = UnsupportedHingeProvider()
     var received: HingeSample?
@@ -47,6 +68,45 @@ final class DualScreenHingeTests: XCTestCase {
     RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
     XCTAssertEqual(events.count, countAfterCancel)
   }
+
+  // UIScene apps register plugins before the Flutter view controller exists.
+  @MainActor
+  func testAttachesWhenViewControllerAppearsAfterListen() {
+    let provider = MockHingeProvider()
+    let regionProvider = MockReservedRegionProvider()
+    regionProvider.samples = [
+      ReservedRegionSample(
+        bounds: CGRect(x: 400, y: 0, width: 12, height: 900),
+        kind: "division",
+        isActive: true
+      ),
+    ]
+    var controller: UIViewController?
+    let handler = DualScreenStreamHandler(
+      viewControllerProvider: { controller },
+      provider: provider,
+      regionProvider: regionProvider
+    )
+    var events: [[String: Any]] = []
+
+    XCTAssertNil(handler.onListen(withArguments: nil) { value in
+      if let event = value as? [String: Any] { events.append(event) }
+    })
+    XCTAssertEqual((events.last?["reservedRegions"] as? [[String: Any]])?.count, 0)
+
+    let host = UIViewController()
+    host.loadViewIfNeeded()
+    controller = host
+    NotificationCenter.default.post(name: UIWindow.didBecomeVisibleNotification, object: nil)
+    provider.send(angle: 120, status: "partiallyOpen")
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+
+    XCTAssertEqual(events.last?["hingeAngle"] as? Double, 120)
+    XCTAssertEqual((events.last?["reservedRegions"] as? [[String: Any]])?.count, 1)
+    XCTAssertEqual(events.last?["activeScreen"] as? String, "inner")
+    XCTAssertNil(handler.onCancel(withArguments: nil))
+  }
+
   @MainActor
   func testReservedRegionsAndActiveDivisionFeatureMapping() {
     let hingeProvider = MockHingeProvider()

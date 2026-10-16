@@ -19,7 +19,7 @@ supported postures, rear/dual-screen display sessions, or iOS support.
 
 ```yaml
 dependencies:
-  dual_screen_hinge: ^0.2.1
+  dual_screen_hinge: ^1.0.0
 ```
 
 Requires Flutter 3.38+, Dart 3.10+, Android API 21+, or iOS 13+. iPhone Duo
@@ -105,8 +105,8 @@ app-controlled public session API.
 
 | Capability | Android | iOS |
 | --- | --- | --- |
-| Continuous angle | API 30+ `TYPE_HINGE_ANGLE` when present | iOS 27 `UIHingeInteraction` on supported hardware |
-| Fold geometry/posture | AndroidX WindowManager 1.5.1 | iOS 27 hinge status; iOS 27.1 reserved regions |
+| Continuous angle | API 30+ `TYPE_HINGE_ANGLE` when present | iOS 27.1 `UIHingeInteraction` on supported hardware |
+| Fold geometry/posture | AndroidX WindowManager 1.5.1 | iOS 27.1 hinge status and reserved regions |
 | Camera/fold avoidance | Flutter `MediaQuery.displayFeatures` | Division and occlusion reserved regions on iOS 27.1 |
 | Inner/outer identity | Only while a Window Area session establishes it | Region and scene evidence; unknown when multitasking is ambiguous |
 | Rear-display transfer | Experimental Window Area API | Unsupported |

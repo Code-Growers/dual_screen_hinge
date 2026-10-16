@@ -1,5 +1,5 @@
 PODS:
-  - dual_screen_hinge (0.2.1):
+  - dual_screen_hinge (1.0.0):
     - Flutter
   - Flutter (1.0.0)
   - integration_test (0.0.1):
@@ -19,10 +19,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  dual_screen_hinge: 281537ec69002e5489b488a8e5d12801e8ebae69
-  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  dual_screen_hinge: 23ae96ba78cbbc529a3acb50491551d6ebf1d32a
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
 
-PODFILE CHECKSUM: 35a2496d953b78d5fb37339ae9ffb08c120bebdc
+PODFILE CHECKSUM: f602354cbd8ff80f81333d86d7c05b6bd76b1c30
 
 COCOAPODS: 1.17.0

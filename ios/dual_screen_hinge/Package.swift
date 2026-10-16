@@ -87,7 +87,8 @@ let package = Package(
         .testTarget(
             name: "dual_screen_hingeTests",
             dependencies: ["dual_screen_hinge"],
-            path: "Tests"
+            path: "Tests",
+            swiftSettings: dualScreenSwiftSettings
         )
     ]
 )

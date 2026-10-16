@@ -8,20 +8,27 @@ public final class DualScreenHingePlugin: NSObject, FlutterPlugin {
   private let streamHandler: DualScreenStreamHandler
 
   init(
-    viewController: UIViewController?,
+    viewControllerProvider: @escaping () -> UIViewController?,
     provider: HingeProviding = HingeProviderFactory.make(),
     regionProvider: ReservedRegionProviding = ReservedRegionProviderFactory.make()
   ) {
     streamHandler = DualScreenStreamHandler(
-      viewController: viewController,
+      viewControllerProvider: viewControllerProvider,
       provider: provider,
       regionProvider: regionProvider
     )
     super.init()
   }
 
+  convenience init(viewController: UIViewController?) {
+    self.init(viewControllerProvider: { [weak viewController] in viewController })
+  }
+
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let plugin = DualScreenHingePlugin(viewController: registrar.viewController)
+    // With the UIScene lifecycle the engine registers plugins before its view
+    // controller exists, so resolve the view controller when it is needed.
+    // The registrar only references its engine weakly, so this is not a cycle.
+    let plugin = DualScreenHingePlugin(viewControllerProvider: { registrar.viewController })
     let methods = FlutterMethodChannel(name: methodChannelName, binaryMessenger: registrar.messenger())
     let events = FlutterEventChannel(name: eventChannelName, binaryMessenger: registrar.messenger())
     registrar.addMethodCallDelegate(plugin, channel: methods)
@@ -109,9 +116,9 @@ final class MockReservedRegionProvider: ReservedRegionProviding {
 }
 #endif
 
-// Prevents iOS 27 symbols from being parsed by older SDKs.
+// Hinge symbols are iOS 27.1 API; the define keeps older SDKs from parsing them.
 #if DUAL_SCREEN_HINGE_IOS27
-@available(iOS 27.0, *)
+@available(iOS 27.1, *)
 final class IOS27HingeProvider: HingeProviding {
   private weak var hostView: UIView?
   private var interaction: UIHingeInteraction?
@@ -130,10 +137,11 @@ final class IOS27HingeProvider: HingeProviding {
         return
       }
       self.isSupported = true
-      let status = String(describing: hinge.status)
+      let status = Self.statusName(hinge.status)
+      let degrees = hingeDegrees(fromRadians: Double(hinge.angle))
       DispatchQueue.main.async {
         onChange(HingeSample(
-          angle: hinge.angle.degrees,
+          angle: degrees,
           status: status,
           hasHinge: true
         ))
@@ -148,6 +156,15 @@ final class IOS27HingeProvider: HingeProviding {
     interaction = nil
     hostView = nil
     isSupported = false
+  }
+
+  static func statusName(_ status: UIHinge.Status) -> String {
+    switch status {
+    case .closed: return "closed"
+    case .partiallyOpen: return "partiallyOpen"
+    case .fullyOpen: return "fullyOpen"
+    default: return "unknown"
+    }
   }
 }
 #endif
@@ -196,7 +213,7 @@ final class IOS271ReservedRegionProvider: ReservedRegionProviding {
 enum HingeProviderFactory {
   static func make() -> HingeProviding {
     #if DUAL_SCREEN_HINGE_IOS27
-    if #available(iOS 27.0, *) { return IOS27HingeProvider() }
+    if #available(iOS 27.1, *) { return IOS27HingeProvider() }
     #endif
     return UnsupportedHingeProvider()
   }
@@ -237,7 +254,7 @@ private final class TraitObserverView: UIView {
 }
 
 final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
-  private weak var viewController: UIViewController?
+  private let viewControllerProvider: () -> UIViewController?
   private let provider: HingeProviding
   private let regionProvider: ReservedRegionProviding
   private var observerView: TraitObserverView?
@@ -247,16 +264,31 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
   private var displayLink: CADisplayLink?
   private var lastEvent: NSDictionary?
   private var sample = HingeSample(angle: nil, status: "unknown", hasHinge: false)
+  private var windowObserver: NSObjectProtocol?
 
   init(
+    viewControllerProvider: @escaping () -> UIViewController?,
+    provider: HingeProviding,
+    regionProvider: ReservedRegionProviding = UnsupportedReservedRegionProvider()
+  ) {
+    self.viewControllerProvider = viewControllerProvider
+    self.provider = provider
+    self.regionProvider = regionProvider
+  }
+
+  convenience init(
     viewController: UIViewController?,
     provider: HingeProviding,
     regionProvider: ReservedRegionProviding = UnsupportedReservedRegionProvider()
   ) {
-    self.viewController = viewController
-    self.provider = provider
-    self.regionProvider = regionProvider
+    self.init(
+      viewControllerProvider: { [weak viewController] in viewController },
+      provider: provider,
+      regionProvider: regionProvider
+    )
   }
+
+  private var hostView: UIView? { viewControllerProvider()?.viewIfLoaded }
 
   var capabilities: [String: Any] {
     let hingeSupported = sample.hasHinge || provider.isSupported
@@ -278,19 +310,40 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
     tearDown()
     sink = events
 
-    let hostView = viewController?.view
-    let observer = TraitObserverView(frame: hostView?.bounds ?? .zero)
+    let link = CADisplayLink(target: self, selector: #selector(displayFrame))
+    link.isPaused = true
+    link.add(to: .main, forMode: .common)
+    displayLink = link
+
+    if !attachObserverIfPossible() {
+      // The Flutter view controller may not be in a window yet. Retry when a
+      // window becomes visible rather than polling.
+      windowObserver = NotificationCenter.default.addObserver(
+        forName: UIWindow.didBecomeVisibleNotification,
+        object: nil,
+        queue: .main
+      ) { [weak self] _ in
+        guard let self, self.attachObserverIfPossible() else { return }
+        self.removeWindowObserver()
+        self.scheduleGeometryUpdate()
+      }
+    }
+    emit(force: true)
+    return nil
+  }
+
+  @discardableResult
+  private func attachObserverIfPossible() -> Bool {
+    guard observerView == nil else { return true }
+    guard let hostView else { return false }
+
+    let observer = TraitObserverView(frame: hostView.bounds)
     observer.backgroundColor = .clear
     observer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     observer.isUserInteractionEnabled = false
     observer.accessibilityElementsHidden = true
     observerView = observer
-    hostView?.addSubview(observer)
-
-    let link = CADisplayLink(target: self, selector: #selector(displayFrame))
-    link.isPaused = true
-    link.add(to: .main, forMode: .common)
-    displayLink = link
+    hostView.addSubview(observer)
     observer.onGeometryChange = { [weak self] in self?.scheduleGeometryUpdate() }
 
     provider.start(on: observer) { [weak self] next in
@@ -305,8 +358,12 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
         }
       }
     }
-    emit(force: true)
-    return nil
+    return true
+  }
+
+  private func removeWindowObserver() {
+    if let windowObserver { NotificationCenter.default.removeObserver(windowObserver) }
+    windowObserver = nil
   }
 
   func onCancel(withArguments arguments: Any?) -> FlutterError? {
@@ -343,6 +400,7 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   private func tearDown() {
+    removeWindowObserver()
     provider.stop()
     observerView?.onGeometryChange = nil
     observerView?.removeFromSuperview()
@@ -394,7 +452,7 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   private func reservedRegions() -> [ReservedRegionSample] {
-    guard let hostView = viewController?.view, regionProvider.isSupported else { return [] }
+    guard let hostView, regionProvider.isSupported else { return [] }
     return regionProvider.regions(in: hostView)
   }
 
@@ -408,7 +466,7 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
 
     guard hasHinge || regionProvider.isSupported else { return ("unknown", nil) }
 
-    let roleView = observerView ?? viewController?.viewIfLoaded
+    let roleView = observerView ?? hostView
     if !regionProvider.isSupported {
       guard let roleView else { return ("unknown", nil) }
       let inner = roleView.traitCollection.horizontalSizeClass == .regular
@@ -470,6 +528,11 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
       "bottom": bounds.maxY,
     ]
   }
+}
+
+// UIHinge.angle is reported in radians; the Dart API uses degrees.
+func hingeDegrees(fromRadians radians: Double) -> Double {
+  radians * 180 / .pi
 }
 
 func mapNativeHingePosture(_ native: String) -> String {

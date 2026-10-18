@@ -1,3 +1,8 @@
+## 1.0.2
+
+- Rename the platform channels from `com.example.iphone_duo_hinge/*` to `tech.codegrower.iphone_duo_hinge/*`. Apps that use the plugin's Dart API need no changes; code that talks to the channels directly must use the new names.
+- Stop shipping stray `*.log` files in the published package; `.pubignore` now also excludes `.DS_Store`, `local.properties`, and Swift build directories.
+
 ## 1.0.1
 
 - Fix a race where iOS could report `postureSource: platform` with no hinge angle before UIKit's first hinge sample was delivered; state now derives from delivered samples only.

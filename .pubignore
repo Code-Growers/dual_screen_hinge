@@ -10,3 +10,8 @@ website/
 **/Pods/
 **/.symlinks/
 *.iml
+*.log
+.DS_Store
+**/local.properties
+**/.build/
+**/.swiftpm/

@@ -1,7 +1,7 @@
 # Wire contract v1
 
-The event channel is `com.example.iphone_duo_hinge/events`. The method channel
-is `com.example.iphone_duo_hinge/methods`. Both use Flutter's
+The event channel is `tech.codegrower.iphone_duo_hinge/events`. The method
+channel is `tech.codegrower.iphone_duo_hinge/methods`. Both use Flutter's
 `StandardMessageCodec`.
 
 Every event and `currentState` response is a dictionary with:

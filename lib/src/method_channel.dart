@@ -10,8 +10,8 @@ final class MethodChannelDualScreenHinge extends DualScreenHingePlatform {
   }) : _methodChannel = methodChannel ?? const MethodChannel(methodChannelName),
        _eventChannel = eventChannel ?? const EventChannel(eventChannelName);
 
-  static const methodChannelName = 'com.example.iphone_duo_hinge/methods';
-  static const eventChannelName = 'com.example.iphone_duo_hinge/events';
+  static const methodChannelName = 'tech.codegrower.iphone_duo_hinge/methods';
+  static const eventChannelName = 'tech.codegrower.iphone_duo_hinge/events';
 
   final MethodChannel _methodChannel;
   final EventChannel _eventChannel;

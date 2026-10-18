@@ -523,8 +523,8 @@ class DualScreenHingePlugin :
 
     private companion object {
         val processSessionLock = DisplaySessionLock()
-        const val METHOD_CHANNEL = "com.example.iphone_duo_hinge/methods"
-        const val EVENT_CHANNEL = "com.example.iphone_duo_hinge/events"
+        const val METHOD_CHANNEL = "tech.codegrower.iphone_duo_hinge/methods"
+        const val EVENT_CHANNEL = "tech.codegrower.iphone_duo_hinge/events"
         const val REAR_MODE = "rearDisplay"
         const val DUAL_MODE = "dualScreen"
     }

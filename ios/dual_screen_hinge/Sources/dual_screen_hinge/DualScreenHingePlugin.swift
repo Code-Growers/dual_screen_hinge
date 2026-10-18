@@ -1,8 +1,8 @@
 import Flutter
 import UIKit
 
-private let methodChannelName = "com.example.iphone_duo_hinge/methods"
-private let eventChannelName = "com.example.iphone_duo_hinge/events"
+private let methodChannelName = "tech.codegrower.iphone_duo_hinge/methods"
+private let eventChannelName = "tech.codegrower.iphone_duo_hinge/events"
 
 public final class DualScreenHingePlugin: NSObject, FlutterPlugin {
   private let streamHandler: DualScreenStreamHandler

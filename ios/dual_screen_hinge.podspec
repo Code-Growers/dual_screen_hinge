@@ -2,7 +2,7 @@ require 'open3'
 
 Pod::Spec.new do |s|
   s.name             = 'dual_screen_hinge'
-  s.version          = '1.0.1'
+  s.version          = '1.0.2'
   s.summary          = 'iPhone Duo-first foldable display APIs for Flutter.'
   s.description      = <<-DESC
 Bridges public Android and iOS foldable display APIs to Flutter.

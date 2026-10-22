@@ -9,6 +9,16 @@ Every event and `currentState` response is a dictionary with:
 - `schemaVersion`: `1`
 - `activeScreen`: `unknown`, `outer`, or `inner`
 - `isInnerScreen`: Boolean on iOS; null on Android unless future APIs can prove it
+- `windowPlacement` (optional, iOS only): `unknown`, `full`, `left`, or `right`.
+  Says which horizontal screen edges the window touches, in the screen's
+  interface-oriented coordinates. `full` spans the screen width; `left` and
+  `right` touch one edge, as in Split View; `unknown` touches neither or has
+  no window yet
+- `verticalBarEdge` (optional, iOS only): `unknown`, `none`, `left`, or `right`.
+  The physical edge where the system places its vertical bar, from UIKit's
+  `UITraitCollection.verticalBarEdge` resolved with the layout direction.
+  `none` means the system uses no vertical bar in this context; `unknown`
+  means the SDK, OS, or view can't report it
 - `hingeAngle`: number or null
 - `posture`: `unknown`, `closed`, `halfOpened`, `flat`, or `tent`
 - `postureSource`: `platform`, `foldingFeature`, `derivedAngle`, or `unavailable`
@@ -20,6 +30,9 @@ Every event and `currentState` response is a dictionary with:
 - `supportedPostures`: lowercase native capability names
 - `displayModes`: `rearDisplay` and `dualScreen`, each containing `state`,
   `isContentVisible`, and nullable `errorCode`
+
+Android omits `windowPlacement` and `verticalBarEdge`; readers decode a missing
+key as `unknown`.
 
 Readers must ignore unknown keys and map unknown enum strings to `unknown`.
 Native writers may add optional keys without incrementing `schemaVersion`.

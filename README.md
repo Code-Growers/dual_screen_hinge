@@ -19,7 +19,7 @@ supported postures, rear/dual-screen display sessions, or iOS support.
 
 ```yaml
 dependencies:
-  dual_screen_hinge: ^1.0.2
+  dual_screen_hinge: ^1.1.0
 ```
 
 Requires Flutter 3.38+, Dart 3.10+, Android API 21+, or iOS 13+. iPhone Duo
@@ -74,6 +74,20 @@ important custom-positioned elements using `activeRegionBounds`; don't drive
 layout from the hinge angle or fixed iPhone Duo dimensions. See Apple's
 [iPhone Duo HIG](https://developer.apple.com/design/human-interface-guidelines/designing-for-iphone-duo).
 
+## Place side controls (iOS)
+
+iPhone Duo moves system bars to a side edge, and in Split View each app puts
+them on its outer edge. `verticalBarEdge` reports that edge (iOS 27.1), and
+`windowPlacement` reports whether the window spans the screen or sits on the
+left or right (iOS 13+). Both are physical left/right and `unknown` on Android.
+
+```dart
+final state = await DualScreenHinge.instance.currentState();
+final railOnLeft = state.verticalBarEdge == VerticalBarEdge.left;
+final inSplitView = state.windowPlacement == WindowPlacement.left ||
+    state.windowPlacement == WindowPlacement.right;
+```
+
 ## Display modes (Android)
 
 ```dart
@@ -109,6 +123,8 @@ app-controlled public session API.
 | Fold geometry/posture | AndroidX WindowManager 1.5.1 | iOS 27.1 hinge status and reserved regions |
 | Camera/fold avoidance | Flutter `MediaQuery.displayFeatures` | Division and occlusion reserved regions on iOS 27.1 |
 | Inner/outer identity | Only while a Window Area session establishes it | Region and scene evidence; unknown when multitasking is ambiguous |
+| Vertical bar edge | Unsupported (`unknown`) | iOS 27.1 `UITraitCollection.verticalBarEdge` |
+| Window placement | Unsupported (`unknown`) | Window frame in screen coordinates, iOS 13+ |
 | Rear-display transfer | Experimental Window Area API | Unsupported |
 | Dual-screen presentation | Experimental Window Area API + secondary Flutter engine | Unsupported |
 
@@ -116,9 +132,10 @@ No device allowlist, OEM reflection, or private API is used. Unsupported data
 is nullable or reported through runtime capabilities.
 
 Flutter-rendered toolbars don't automatically become UIKit's iPhone Duo
-vertical bars. Keep controls inside each independent safe-area edge, preserve
-their relative order across sizes, and let decorative backgrounds extend
-edge-to-edge separately from interactive content.
+vertical bars. Put custom side controls on `verticalBarEdge`, keep controls
+inside each independent safe-area edge, preserve their relative order across
+sizes, and let decorative backgrounds extend edge-to-edge separately from
+interactive content.
 
 ## Documentation
 

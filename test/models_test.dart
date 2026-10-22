@@ -152,4 +152,63 @@ void main() {
     final state = DualScreenState.fromMap(const <Object?, Object?>{});
     expect(state.reservedRegions, isEmpty);
   });
+
+  test('decodes window placement and vertical bar edge', () {
+    for (final placement in WindowPlacement.values) {
+      for (final edge in VerticalBarEdge.values) {
+        final state = DualScreenState.fromMap(<Object?, Object?>{
+          'windowPlacement': placement.name,
+          'verticalBarEdge': edge.name,
+        });
+        expect(state.windowPlacement, placement);
+        expect(state.verticalBarEdge, edge);
+      }
+    }
+  });
+
+  test('window placement and bar edge default to unknown', () {
+    // Android and older plugin versions omit both keys.
+    final missing = DualScreenState.fromMap(const <Object?, Object?>{});
+    expect(missing.windowPlacement, WindowPlacement.unknown);
+    expect(missing.verticalBarEdge, VerticalBarEdge.unknown);
+
+    final future = DualScreenState.fromMap(const <Object?, Object?>{
+      'windowPlacement': 'floating',
+      'verticalBarEdge': 42,
+    });
+    expect(future.windowPlacement, WindowPlacement.unknown);
+    expect(future.verticalBarEdge, VerticalBarEdge.unknown);
+  });
+
+  test('window placement and bar edge take part in equality', () {
+    const left = DualScreenState(
+      windowPlacement: WindowPlacement.left,
+      verticalBarEdge: VerticalBarEdge.left,
+    );
+    expect(
+      left,
+      const DualScreenState(
+        windowPlacement: WindowPlacement.left,
+        verticalBarEdge: VerticalBarEdge.left,
+      ),
+    );
+    expect(
+      left,
+      isNot(
+        const DualScreenState(
+          windowPlacement: WindowPlacement.right,
+          verticalBarEdge: VerticalBarEdge.left,
+        ),
+      ),
+    );
+    expect(
+      left,
+      isNot(
+        const DualScreenState(
+          windowPlacement: WindowPlacement.left,
+          verticalBarEdge: VerticalBarEdge.right,
+        ),
+      ),
+    );
+  });
 }

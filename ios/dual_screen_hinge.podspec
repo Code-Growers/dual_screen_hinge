@@ -2,7 +2,7 @@ require 'open3'
 
 Pod::Spec.new do |s|
   s.name             = 'dual_screen_hinge'
-  s.version          = '1.0.2'
+  s.version          = '1.1.0'
   s.summary          = 'iPhone Duo-first foldable display APIs for Flutter.'
   s.description      = <<-DESC
 Bridges public Android and iOS foldable display APIs to Flutter.
@@ -35,6 +35,9 @@ Bridges public Android and iOS foldable display APIs to Flutter.
     end
     if declarations.match?(/\bfunc\s+reservedRegions\s*\(|\breservedRegions(?:With\w*)?\s*:/)
       flags << '-DDUAL_SCREEN_HINGE_IOS271'
+    end
+    if declarations.match?(/\bUIVerticalBarEdge\s+verticalBarEdge\b|\bvar\s+verticalBarEdge\s*:/)
+      flags << '-DDUAL_SCREEN_HINGE_VERTICAL_BAR'
     end
     xcconfig["OTHER_SWIFT_FLAGS[sdk=#{sdk}*]"] = flags.join(' ')
   end

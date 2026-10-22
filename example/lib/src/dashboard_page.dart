@@ -146,6 +146,8 @@ class _StateCard extends StatelessWidget {
         _Chip('source', state.postureSource),
         _Chip('screen', state.activeScreen.name),
         _Chip('inner', '${state.isInnerScreen ?? 'unknown'}'),
+        _Chip('window', state.windowPlacement.name),
+        _Chip('bar edge', state.verticalBarEdge.name),
         _Chip('features', '${state.displayFeatures.length}'),
         _Chip('regions', '${state.reservedRegions.length}'),
       ],

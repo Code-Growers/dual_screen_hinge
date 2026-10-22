@@ -8,6 +8,43 @@ enum HingePosture { unknown, closed, halfOpened, flat, tent }
 /// The display role currently hosting the primary Flutter view.
 enum ActiveScreen { unknown, outer, inner }
 
+/// Which horizontal screen edges the Flutter window touches.
+///
+/// [left] and [right] are physical, as seen in the current orientation, and
+/// don't flip for right-to-left languages.
+enum WindowPlacement {
+  /// Not reported, or the window touches neither horizontal screen edge.
+  unknown,
+
+  /// The window spans the screen's full width.
+  full,
+
+  /// The window touches only the left screen edge, as in Split View.
+  left,
+
+  /// The window touches only the right screen edge, as in Split View.
+  right,
+}
+
+/// The physical edge where the system places its vertical bar.
+///
+/// On iPhone Duo, the status bar, toolbars, and tab bars move to a side edge.
+/// Place custom vertical controls on this edge. Like [WindowPlacement], the
+/// value is physical and doesn't flip for right-to-left languages.
+enum VerticalBarEdge {
+  /// Not reported by the platform, SDK, or current view.
+  unknown,
+
+  /// The system places no vertical bar in this context.
+  none,
+
+  /// The system places its vertical bar on the left edge.
+  left,
+
+  /// The system places its vertical bar on the right edge.
+  right,
+}
+
 /// Whether a display feature is a flexible fold or an occluding hinge.
 enum FoldFeatureType { unknown, fold, hinge }
 
@@ -194,6 +231,8 @@ final class DualScreenState {
     this.schemaVersion = 1,
     this.activeScreen = ActiveScreen.unknown,
     this.isInnerScreen,
+    this.windowPlacement = WindowPlacement.unknown,
+    this.verticalBarEdge = VerticalBarEdge.unknown,
     this.hingeAngle,
     this.posture = HingePosture.unknown,
     this.postureSource = 'unavailable',
@@ -213,6 +252,14 @@ final class DualScreenState {
       isInnerScreen: map['isInnerScreen'] is bool
           ? map['isInnerScreen'] as bool
           : null,
+      windowPlacement: _enumByName(
+        WindowPlacement.values,
+        map['windowPlacement'],
+      ),
+      verticalBarEdge: _enumByName(
+        VerticalBarEdge.values,
+        map['verticalBarEdge'],
+      ),
       hingeAngle: _double(map['hingeAngle']),
       posture: _enumByName(HingePosture.values, map['posture']),
       postureSource: _string(map['postureSource']) ?? 'unavailable',
@@ -240,6 +287,14 @@ final class DualScreenState {
 
   /// Whether the active iOS display is inner; normally null on Android.
   final bool? isInnerScreen;
+
+  /// Where the Flutter window sits on its screen; iOS only, otherwise
+  /// [WindowPlacement.unknown].
+  final WindowPlacement windowPlacement;
+
+  /// Where the system places its vertical bar; iOS 27.1+ only, otherwise
+  /// [VerticalBarEdge.unknown].
+  final VerticalBarEdge verticalBarEdge;
 
   /// Raw platform hinge angle in degrees, when exposed.
   final double? hingeAngle;
@@ -271,6 +326,8 @@ final class DualScreenState {
       other.schemaVersion == schemaVersion &&
       other.activeScreen == activeScreen &&
       other.isInnerScreen == isInnerScreen &&
+      other.windowPlacement == windowPlacement &&
+      other.verticalBarEdge == verticalBarEdge &&
       other.hingeAngle == hingeAngle &&
       other.posture == posture &&
       other.postureSource == postureSource &&
@@ -285,6 +342,8 @@ final class DualScreenState {
     schemaVersion,
     activeScreen,
     isInnerScreen,
+    windowPlacement,
+    verticalBarEdge,
     hingeAngle,
     posture,
     postureSource,

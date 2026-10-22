@@ -1,3 +1,10 @@
+## 1.1.0
+
+- Add `DualScreenState.verticalBarEdge` (`VerticalBarEdge`): the physical edge where iOS 27.1 places its vertical bar, from `UITraitCollection.verticalBarEdge`, so custom Flutter controls can follow it on iPhone Duo, including the outer edge in Split View.
+- Add `DualScreenState.windowPlacement` (`WindowPlacement`): whether the iOS window spans the screen width or sits on the left or right, from the window frame in screen coordinates.
+- Both are optional wire keys that Android omits and Dart decodes as `unknown`. Detect `verticalBarEdge` in the UIKit SDK for CocoaPods and Swift Package Manager, like the hinge and reserved-region APIs.
+- Validated on the Xcode 27.1 iPhone Duo simulator in the closed pose: the end-to-end test reports `full` and `right`, and a right-to-left layout keeps the same physical edge. Split View placement is covered by native tests with left and right window frames.
+
 ## 1.0.2
 
 - Rename the platform channels from `com.example.iphone_duo_hinge/*` to `tech.codegrower.iphone_duo_hinge/*`. Apps that use the plugin's Dart API need no changes; code that talks to the channels directly must use the new names.

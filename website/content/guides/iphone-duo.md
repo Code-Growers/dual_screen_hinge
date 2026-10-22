@@ -60,6 +60,45 @@ automatically adopt UIKit's iPhone Duo vertical-bar representation. Keep symbol
 and title semantics available, preserve the relative order of actions, and
 ensure custom bars respect the safe area on the edge where they appear.
 
+## Vertical bar edge and window placement
+
+UIKit moves the status bar, toolbars, and tab bars to a side edge on iPhone
+Duo. When two apps share the inner display in Split View, each one puts these
+controls on its outer edge, so the left app has them on the left. Flutter bars
+don't follow on their own, so the plugin reports two values:
+
+- `verticalBarEdge` is the edge where the system places its vertical bar,
+  from UIKit's `UITraitCollection.verticalBarEdge` on iOS 27.1. It's `none`
+  when the system uses horizontal bars instead, such as in a size class or
+  orientation without a vertical bar. Use it to pick the edge for custom
+  vertical controls.
+- `windowPlacement` says which horizontal screen edges the Flutter window
+  touches: `full` when it spans the screen width, `left` or `right` in Split
+  View, and `unknown` when it touches neither. It works on iOS 13 and later.
+
+Both are physical left and right in the current orientation, matching Flutter's
+`EdgeInsets` and `Positioned`. UIKit reports the bar edge as leading or
+trailing; the plugin resolves it with the layout direction, so the value stays
+on the same hardware edge in right-to-left languages, as the bar itself does.
+They're `unknown` on Android, on SDKs or OS versions without the API, and
+before the Flutter view is in a window.
+
+```dart
+Widget build(BuildContext context) {
+  final edge = state.verticalBarEdge;
+  return Row(
+    children: [
+      if (edge == VerticalBarEdge.left) const ActionRail(),
+      const Expanded(child: Content()),
+      if (edge == VerticalBarEdge.right) const ActionRail(),
+    ],
+  );
+}
+```
+
+These values choose an edge, not a size. Keep reading the inset on each edge
+from `MediaQuery.paddingOf(context)`.
+
 ## Screen role
 
 `activeScreen` is deliberately conservative. A division region proves that the

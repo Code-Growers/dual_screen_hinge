@@ -193,6 +193,39 @@ final class IOS271ReservedRegionProvider: ReservedRegionProviding {
 }
 #endif
 
+enum VerticalBarEdgeReader {
+  static func edge(of view: UIView?) -> String {
+    // A view outside a window has default traits, not the system's placement.
+    guard let view, view.window != nil else { return "unknown" }
+    #if DUAL_SCREEN_HINGE_VERTICAL_BAR
+    if #available(iOS 27.1, *) {
+      let traits = view.traitCollection
+      switch traits.verticalBarEdge {
+      case .unspecified: return "none"
+      case .leading: return physicalBarEdge(leading: true, layoutDirection: traits.layoutDirection)
+      case .trailing: return physicalBarEdge(leading: false, layoutDirection: traits.layoutDirection)
+      @unknown default: return "unknown"
+      }
+    }
+    #endif
+    return "unknown"
+  }
+
+  // UIKit documents these traits as the way to observe bar-edge changes.
+  // Observers are attached from onListen, which runs on the main thread.
+  static func observeChanges(on view: UIView, onChange: @escaping () -> Void) {
+    #if DUAL_SCREEN_HINGE_VERTICAL_BAR
+    if #available(iOS 27.1, *) {
+      MainActor.assumeIsolated {
+        _ = view.registerForTraitChanges(
+          UITraitCollection.systemTraitsAffectingVerticalBarEdge
+        ) { (_: UIView, _: UITraitCollection) in onChange() }
+      }
+    }
+    #endif
+  }
+}
+
 enum HingeProviderFactory {
   static func make() -> HingeProviding {
     #if DUAL_SCREEN_HINGE_IOS27
@@ -328,6 +361,9 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
     observerView = observer
     hostView.addSubview(observer)
     observer.onGeometryChange = { [weak self] in self?.scheduleGeometryUpdate() }
+    VerticalBarEdgeReader.observeChanges(on: observer) { [weak observer] in
+      observer?.onGeometryChange?()
+    }
 
     provider.start(on: observer) { [weak self] next in
       guard let self else { return }
@@ -415,10 +451,13 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
     let regions = reservedRegions()
     let role = screenRole(hasHinge: hasHinge, regions: regions)
     let mappedPosture = mapNativeHingePosture(sample.status)
+    let layoutView = observerView ?? hostView
     return [
       "schemaVersion": 1,
       "activeScreen": role.name,
       "isInnerScreen": role.isInner ?? NSNull(),
+      "windowPlacement": windowPlacementName(of: layoutView?.window),
+      "verticalBarEdge": VerticalBarEdgeReader.edge(of: layoutView),
       "hingeAngle": sample.angle ?? NSNull(),
       "posture": mappedPosture,
       "postureSource": hasHinge ? "platform" : "unavailable",
@@ -480,6 +519,15 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
     return ("unknown", nil)
   }
 
+  private func windowPlacementName(of window: UIWindow?) -> String {
+    guard let window, let scene = window.windowScene else { return "unknown" }
+    let screenSpace = scene.screen.coordinateSpace
+    return windowPlacement(
+      windowFrame: window.convert(window.bounds, to: screenSpace),
+      screenBounds: screenSpace.bounds
+    )
+  }
+
   private func displayFeatures(
     from regions: [ReservedRegionSample]
   ) -> [[String: Any]] {
@@ -518,6 +566,29 @@ final class DualScreenStreamHandler: NSObject, FlutterStreamHandler {
 // UIHinge.angle is reported in radians; the Dart API uses degrees.
 func hingeDegrees(fromRadians radians: Double) -> Double {
   radians * 180 / .pi
+}
+
+// Split View windows touch exactly one horizontal screen edge. Frames are in
+// the screen's interface-oriented space, so left and right match what people see.
+func windowPlacement(windowFrame: CGRect, screenBounds: CGRect) -> String {
+  guard !windowFrame.isEmpty, !screenBounds.isEmpty else { return "unknown" }
+  let touchesLeft = abs(windowFrame.minX - screenBounds.minX) < 0.5
+  let touchesRight = abs(windowFrame.maxX - screenBounds.maxX) < 0.5
+  switch (touchesLeft, touchesRight) {
+  case (true, true): return "full"
+  case (true, false): return "left"
+  case (false, true): return "right"
+  default: return "unknown"
+  }
+}
+
+// Flutter lays out in physical left/right; UIKit reports the bar edge
+// relative to the layout direction.
+func physicalBarEdge(
+  leading: Bool,
+  layoutDirection: UITraitEnvironmentLayoutDirection
+) -> String {
+  leading == (layoutDirection == .rightToLeft) ? "right" : "left"
 }
 
 func mapNativeHingePosture(_ native: String) -> String {

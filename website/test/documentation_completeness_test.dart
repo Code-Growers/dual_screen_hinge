@@ -42,5 +42,7 @@ void main() {
     expect(text, contains('MediaQuery.paddingOf'));
     expect(text, contains('Split View'));
     expect(text, contains('vertical-bar'));
+    expect(text, contains('verticalBarEdge'));
+    expect(text, contains('windowPlacement'));
   });
 }

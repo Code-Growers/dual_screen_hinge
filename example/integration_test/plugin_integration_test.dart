@@ -90,6 +90,10 @@ void main() {
         expect(state.isInnerScreen, isNull);
     }
 
+    // The example runs full screen; RunnerTests cover Split View frames.
+    expect(state.windowPlacement, WindowPlacement.full);
+    expect(state.verticalBarEdge, isNot(VerticalBarEdge.unknown));
+
     // The example renders the live stream.
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -102,6 +106,8 @@ void main() {
     debugPrint(
       'iPhone Duo e2e: posture=${state.posture.name} '
       'angle=${state.hingeAngle} screen=${state.activeScreen.name} '
+      'window=${state.windowPlacement.name} '
+      'barEdge=${state.verticalBarEdge.name} '
       'regions=${state.reservedRegions.map((r) => '${r.kind.name}:'
           '${r.isActive ? 'active' : 'inactive'}:${r.bounds}').toList()} '
       'features=${state.displayFeatures.length}',

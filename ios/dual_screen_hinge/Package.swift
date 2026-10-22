@@ -61,6 +61,12 @@ if declarations.range(
 ) != nil {
     dualScreenSwiftSettings.append(.define("DUAL_SCREEN_HINGE_IOS271"))
 }
+if declarations.range(
+    of: #"\bUIVerticalBarEdge\s+verticalBarEdge\b|\bvar\s+verticalBarEdge\s*:"#,
+    options: .regularExpression
+) != nil {
+    dualScreenSwiftSettings.append(.define("DUAL_SCREEN_HINGE_VERTICAL_BAR"))
+}
 
 let package = Package(
     name: "dual_screen_hinge",

@@ -16,6 +16,47 @@ final class DualScreenHingeTests: XCTestCase {
     XCTAssertEqual(hingeDegrees(fromRadians: .pi), 180, accuracy: 1e-9)
   }
 
+  func testWindowPlacementFromScreenEdges() {
+    let screen = CGRect(x: 0, y: 0, width: 800, height: 600)
+    XCTAssertEqual(windowPlacement(windowFrame: screen, screenBounds: screen), "full")
+    XCTAssertEqual(
+      windowPlacement(windowFrame: CGRect(x: 0, y: 0, width: 396, height: 600), screenBounds: screen),
+      "left"
+    )
+    XCTAssertEqual(
+      windowPlacement(windowFrame: CGRect(x: 404, y: 0, width: 396, height: 600), screenBounds: screen),
+      "right"
+    )
+    // A window spanning the width stays full even when split top and bottom.
+    XCTAssertEqual(
+      windowPlacement(windowFrame: CGRect(x: 0, y: 300, width: 800, height: 300), screenBounds: screen),
+      "full"
+    )
+    XCTAssertEqual(
+      windowPlacement(windowFrame: CGRect(x: 0.3, y: 0, width: 400, height: 600), screenBounds: screen),
+      "left"
+    )
+    XCTAssertEqual(
+      windowPlacement(windowFrame: CGRect(x: 100, y: 100, width: 400, height: 300), screenBounds: screen),
+      "unknown"
+    )
+    XCTAssertEqual(windowPlacement(windowFrame: .zero, screenBounds: screen), "unknown")
+    XCTAssertEqual(windowPlacement(windowFrame: screen, screenBounds: .zero), "unknown")
+  }
+
+  func testVerticalBarEdgeResolvesToPhysicalEdge() {
+    XCTAssertEqual(physicalBarEdge(leading: true, layoutDirection: .leftToRight), "left")
+    XCTAssertEqual(physicalBarEdge(leading: false, layoutDirection: .leftToRight), "right")
+    XCTAssertEqual(physicalBarEdge(leading: true, layoutDirection: .rightToLeft), "right")
+    XCTAssertEqual(physicalBarEdge(leading: false, layoutDirection: .rightToLeft), "left")
+    XCTAssertEqual(physicalBarEdge(leading: true, layoutDirection: .unspecified), "left")
+  }
+
+  func testVerticalBarEdgeIsUnknownOutsideAWindow() {
+    XCTAssertEqual(VerticalBarEdgeReader.edge(of: nil), "unknown")
+    XCTAssertEqual(VerticalBarEdgeReader.edge(of: UIView()), "unknown")
+  }
+
   #if DUAL_SCREEN_HINGE_IOS27
   func testUIKitHingeStatusNamesMapToPostures() throws {
     guard #available(iOS 27.1, *) else { throw XCTSkip("Requires iOS 27.1") }
@@ -179,6 +220,9 @@ final class DualScreenHingeTests: XCTestCase {
     XCTAssertEqual(state["isInnerScreen"] as? Bool, true)
     XCTAssertFalse((state["supportedPostures"] as? [String] ?? []).contains("tent"))
     XCTAssertEqual(handler.capabilities["reservedRegionGeometry"] as? Bool, true)
+    // The controller was never placed in a window.
+    XCTAssertEqual(state["windowPlacement"] as? String, "unknown")
+    XCTAssertEqual(state["verticalBarEdge"] as? String, "unknown")
   }
 
   @MainActor

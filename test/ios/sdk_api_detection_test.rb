@@ -98,11 +98,25 @@ class SDKAPIDetectionTest < Minitest::Test
       @interface UIHingeInteraction : NSObject
       @end
       - (NSArray *)reservedRegionsWithKind:(NSInteger)kind;
+      @property (nonatomic, readonly) UIVerticalBarEdge verticalBarEdge;
     HEADER
     flags = pod_flags.fetch('OTHER_SWIFT_FLAGS[sdk=iphoneos*]')
     assert_includes flags, '-DDUAL_SCREEN_HINGE_IOS27'
     assert_includes flags, '-DDUAL_SCREEN_HINGE_IOS271'
-    assert_equal %w[DUAL_SCREEN_HINGE_IOS27 DUAL_SCREEN_HINGE_IOS271], swift_defines(@sdks.fetch('iphoneos'))
+    assert_includes flags, '-DDUAL_SCREEN_HINGE_VERTICAL_BAR'
+    assert_equal %w[DUAL_SCREEN_HINGE_IOS27 DUAL_SCREEN_HINGE_IOS271 DUAL_SCREEN_HINGE_VERTICAL_BAR],
+                 swift_defines(@sdks.fetch('iphoneos'))
+  end
+
+  # The enum alone, without the trait property, must not enable the reader.
+  def test_vertical_bar_edge_requires_the_trait_property
+    sdk('iphoneos', 'typedef NS_ENUM(NSInteger, UIVerticalBarEdge) { UIVerticalBarEdgeUnspecified = 0 };')
+    sdk('iphonesimulator', 'public var verticalBarEdge: UIKit.UIVerticalBarEdge { get }', 'swiftinterface')
+    flags = pod_flags
+    assert_equal '$(inherited)', flags.fetch('OTHER_SWIFT_FLAGS[sdk=iphoneos*]')
+    assert_equal '$(inherited) -DDUAL_SCREEN_HINGE_VERTICAL_BAR', flags.fetch('OTHER_SWIFT_FLAGS[sdk=iphonesimulator*]')
+    assert_empty swift_defines(@sdks.fetch('iphoneos'))
+    assert_equal ['DUAL_SCREEN_HINGE_VERTICAL_BAR'], swift_defines(@sdks.fetch('iphonesimulator'))
   end
 
   def test_swift_interfaces_and_sdk_features_are_independent

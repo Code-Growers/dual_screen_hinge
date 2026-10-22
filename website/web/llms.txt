@@ -13,7 +13,9 @@ Canonical API:
 Use responsive MediaQuery sizing and safe areas for general layout. Use this
 plugin for raw angles, iOS division and camera reserved regions, richer
 metadata, and display sessions. Active iOS division regions are also exposed
-as cross-platform display features. Unknown native enum values map to unknown.
+as cross-platform display features. On iOS, verticalBarEdge gives the physical
+edge for custom side controls and windowPlacement gives full, left, or right
+for Split View. Unknown native enum values map to unknown.
 Screen identity remains nullable when it cannot be proven. No model allowlists
 or private APIs.
 
